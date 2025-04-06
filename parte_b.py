@@ -1,5 +1,6 @@
 import utils
 import random
+
 CONNECTION_ADDR_A = ("cc5327.hackerlab.cl", 5312)
 CONNECTION_ADDR_B = ("cc5327.hackerlab.cl", 5313)
 
@@ -16,9 +17,9 @@ if __name__ == "__main__":
             # Read a message from standard input
             msg = input("send a message: ")
             # You need to use encode() method to send a string as bytes.
-            print("[Client] \"{}\"".format(msg))
+            print('[Client] "{}"'.format(msg))
             resp_A = utils.send_message(sock_input_A, sock_output_A, msg)
-            print("[Server A] \"{}\"".format(resp_A))
+            print('[Server A] "{}"'.format(resp_A))
 
             if flip_random:
                 bytes_A = utils.hex_to_bytes(resp_A)
@@ -40,8 +41,8 @@ if __name__ == "__main__":
                 resp_A = utils.bytes_to_hex(bytes_A)
 
             resp_B = utils.send_message(sock_input_B, sock_output_B, resp_A)
-            print("[Server B] \"{}\"".format(resp_B))
-            
+            print('[Server B] "{}"'.format(resp_B))
+
             # Wait for a response and disconnect.
         except Exception as e:
             print(e)
