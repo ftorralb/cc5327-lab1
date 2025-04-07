@@ -40,8 +40,10 @@ def decipher_last_character(ciphertext: str):
         if "invalid padding" not in ans:
             P_n_15 = guess ^ 0x01 ^ C[-2][15]
             return chr(P_n_15)
-    
-    print("Couldn't find C' that decrypts to valid padding.\nUsing original byte instead.")
+
+    print(
+        "Couldn't find C' that decrypts to valid padding.\nUsing original byte instead."
+    )
     P_n_15 = 0x01 ^ C[-2][15] ^ C[-2][15]
     return chr(P_n_15)
 
