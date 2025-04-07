@@ -12,7 +12,15 @@ CONNECTION_ADDR_A = ("cc5327.hackerlab.cl", 5312)
 CONNECTION_ADDR_B = ("cc5327.hackerlab.cl", 5313)
 
 
-def decipher_last_character(ciphertext: str):
+def decipher_last_character(ciphertext: str) -> str:
+    """Deciphers the last character of the given ciphertext
+
+    Args:
+        ciphertext (str): Ciphertext to be deciphered.
+
+    Returns:
+        str: A single character, being the deciphered last byte of the input
+    """
     # create a connection with server B
     sock_input, sock_output = create_socket(CONNECTION_ADDR_B)
 
