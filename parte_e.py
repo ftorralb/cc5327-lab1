@@ -12,7 +12,56 @@ CONNECTION_ADDR_A = ("cc5327.hackerlab.cl", 5312)
 CONNECTION_ADDR_B = ("cc5327.hackerlab.cl", 5313)
 
 
-def decipher_last_block(ciphertext: str):
+def decipher_byte(C, i, P_n, sock_input, sock_output) -> None:
+    """Deciphers the byte with index i of the ciphertext in blocks C
+    and stores it in the array P_n, that represents the last block of
+    the deciphered text.
+
+    Args:
+        C (list[bytearray]): Ciphertext separated in blocks of 16 bytes each
+        i (int): Index of the byte to decipher
+        P_n (list[int]): Array where deciphered bits are stored
+        sock_input (socket): Socket input to communicate with server B
+        sock_output (socket): Socket output to communicate with server B
+    """
+    print(f"Deciphering byte {i}...")
+    pad = 16 - i
+    for guess in range(256):
+        if guess == C[-2][15]:
+            continue
+        C_mod = copy.deepcopy(C)
+
+        # set all known bytes to produce pad-value padding
+        for k in range(15, i, -1):
+            C_mod[-2][k] = P_n[k] ^ pad ^ C[-2][k]
+
+        # guess the current byte
+        C_mod[-2][i] = guess
+
+        msg = bytes_to_hex(join_blocks(C_mod))
+        ans = send_message(sock_input, sock_output, msg)
+
+        if "invalid padding" not in ans:
+            P_n[i] = guess ^ pad ^ C[-2][i]
+            print(f"Deciphered byte {i}: {repr(chr(P_n[i]))}")
+            return
+
+    print(
+        "Couldn't find C' that decrypts to valid padding.\nUsing original byte instead."
+    )
+    P_n[i] = pad ^ C[-2][i] ^ C[-2][i]
+    print(f"Deciphered byte {i}: {repr(chr(P_n[i]))}")
+
+
+def decipher_last_block(ciphertext: str) -> str:
+    """Deciphers the last block of the given ciphertext and returns it.
+
+    Args:
+        ciphertext (str): The ciphertext to be deciphered
+
+    Returns:
+        str: The deciphered last block of the given input
+    """
     # create a connection with server B
     sock_input, sock_output = create_socket(CONNECTION_ADDR_B)
 
@@ -22,66 +71,9 @@ def decipher_last_block(ciphertext: str):
     # array to store the plaintext bytes of the last block
     P_n = [0] * 16
 
-    # first, recover the last byte (pad = 0x01)
-    print("Deciphering byte 15...")
-    found = False
-    for guess in range(256):
-        if guess == C[-2][15]:
-            continue
-        C_mod = copy.deepcopy(C)
-        C_mod[-2][15] = guess
-
-        msg = bytes_to_hex(join_blocks(C_mod))
-        ans = send_message(sock_input, sock_output, msg)
-
-        if "invalid padding" not in ans:
-            P_n[15] = guess ^ 0x01 ^ C[-2][15]
-            print(f"Deciphered byte 15: {repr(chr(P_n[15]))}")
-            found = True
-            break
-
-    if not found:
-        P_n[15] = 0x01 ^ C[-2][15] ^ C[-2][15]
-        print(
-            "Couldn't find C' that decrypts to valid padding.\nUsing original byte instead."
-        )
-        print(f"Deciphered byte 15: {repr(chr(P_n[15]))}")
-
-    print("-----------------------------")
-
-    # recover bytes from position 14 to 0
-    for i in range(14, -1, -1):
-        pad = 16 - i
-        print(f"Deciphering byte {i}...")
-
-        found = False
-        for guess in range(256):
-            if guess == C[-2][15]:
-                continue
-            C_mod = copy.deepcopy(C)
-
-            # set all known bytes to produce pad-value padding
-            for k in range(15, i, -1):
-                C_mod[-2][k] = P_n[k] ^ pad ^ C[-2][k]
-
-            # guess the current byte
-            C_mod[-2][i] = guess
-            msg = bytes_to_hex(join_blocks(C_mod))
-            ans = send_message(sock_input, sock_output, msg)
-
-            if "invalid padding" not in ans:
-                P_n[i] = guess ^ pad ^ C[-2][i]
-                print(f"Deciphered byte {i}: {repr(chr(P_n[i]))}")
-                found = True
-                break
-
-        if not found:
-            P_n[i] = pad ^ C[-2][i] ^ C[-2][i]
-            print(
-                "Couldn't find C' that decrypts to valid padding.\nUsing original byte instead."
-            )
-            print(f"Deciphered byte {i}: {repr(chr(P_n[i]))}")
-
+    # recover bytes from position 15 to 0
+    for i in range(15, -1, -1):
+        decipher_byte(C, i, P_n, sock_input, sock_output)
         print("-----------------------------")
 
     return bytes(P_n).decode(errors="replace")
@@ -92,9 +84,9 @@ if __name__ == "__main__":
     while True:
         try:
             response = input("send a message: ")
-            print('[client] "{}"'.format(response))
+            print('[Client] "{}"'.format(response))
             resp = send_message(sock_input, sock_output, response)
-            print('[server A] "{}"'.format(resp))
+            print('[Server A] "{}"'.format(resp))
 
             # decipher last block from server A's response
             last_block = decipher_last_block(resp)
