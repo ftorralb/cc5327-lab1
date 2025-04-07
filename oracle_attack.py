@@ -50,7 +50,7 @@ def decipher_last_block(C, P_i, sock_input, sock_output) -> None:
     result in the given plaintext_block.
 
     Args:
-        C (list[bytearray]): Ciphertext separated in blocks of 16 bytes each 
+        C (list[bytearray]): Ciphertext separated in blocks of 16 bytes each
         P_i (list[int]): A block of the plaintext P to store the deciphered block
         sock_input (socket): Socket input to communicate with server B
         sock_output (socket): Socket output to communicate with server B
@@ -78,12 +78,11 @@ def decipher_encrypted_message(ciphertext: str) -> str:
     P = [[0] * 16 for _ in range(block_length)]
 
     for i in range(block_length - 1, -1, -1):
-        print(f'Deciphering block with index {i}...')
+        print(f"Deciphering block with index {i}...")
         decipher_last_block(C, P[i], sock_input, sock_output)
         C = C[:-1]
 
     return bytes([b for block in P for b in block]).decode(errors="replace")
-
 
 
 if __name__ == "__main__":
@@ -97,8 +96,8 @@ if __name__ == "__main__":
 
             # decipher last block from server A's response
             plaintext = decipher_encrypted_message(resp)
-            print(f'Deciphered message: {plaintext}')
-            print(f'Deciphered message with padding: {repr(plaintext)}')
+            print(f"Deciphered message: {plaintext}")
+            print(f"Deciphered message with padding: {repr(plaintext)}")
 
         except Exception as e:
             print(e)
