@@ -40,7 +40,7 @@ def decipher_byte(C, byte_index, P_i, sock_input, sock_output) -> None:
         ans = send_message(sock_input, sock_output, msg)
 
         if "invalid padding" not in ans:
-            P_i[byte_index] = guess ^ pad ^ C[-2][byte_index]
+            P_i[byte_index] = pad ^ C_mod[-2][byte_index] ^ C[-2][byte_index]
             print(f"Deciphered byte {byte_index}: {repr(chr(P_i[byte_index]))}")
             return
 

@@ -33,7 +33,7 @@ def decipher_byte(C, i, P_n, sock_input, sock_output) -> None:
 
         # set all known bytes to produce pad-value padding
         for k in range(15, i, -1):
-            C_mod[-2][k] = P_n[k] ^ pad ^ C[-2][k]
+            C_mod[-2][k] = P_n[k] ^ C[-2][k] ^ pad
 
         # guess the current byte
         C_mod[-2][i] = guess
@@ -42,7 +42,7 @@ def decipher_byte(C, i, P_n, sock_input, sock_output) -> None:
         ans = send_message(sock_input, sock_output, msg)
 
         if "invalid padding" not in ans:
-            P_n[i] = guess ^ pad ^ C[-2][i]
+            P_n[i] = pad ^ C_mod[-2][i] ^ C[-2][i]
             print(f"Deciphered byte {i}: {repr(chr(P_n[i]))}")
             return
 

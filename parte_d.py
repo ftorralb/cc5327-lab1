@@ -46,7 +46,7 @@ def decipher_last_character(ciphertext: str) -> str:
         print('[Server B] "{}"'.format(ans))
 
         if "invalid padding" not in ans:
-            P_n_15 = guess ^ 0x01 ^ C[-2][15]
+            P_n_15 = 0x01 ^ C_prime[-2][15] ^ C[-2][15]
             return chr(P_n_15)
 
 
