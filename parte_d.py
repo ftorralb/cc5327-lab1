@@ -20,8 +20,12 @@ def decipher_last_character(ciphertext: str):
     C = split_blocks(hex_to_bytes(ciphertext), 16)
 
     # a value of the last byte of C'[n-1] that decrypts to a message
-    # with a correct padding (of 1 one byte) must exist
+    # with a correct padding (of 1 one byte) should exist
     for guess in range(256):
+        # we only care when the modified message is actually different
+        # from the original ciphertext
+        if guess == C[-2][15]:
+            continue
         # we also need a copy of C to modify it
         C_prime = copy.deepcopy(C)
 
@@ -33,11 +37,13 @@ def decipher_last_character(ciphertext: str):
         ans = send_message(sock_input, sock_output, msg)
         print('[Server B] "{}"'.format(ans))
 
-        # we only care when the modified message is actually different
-        # from the original ciphertext
         if "invalid padding" not in ans:
-            Pn_15 = guess ^ 0x01 ^ C[-2][15]
-            return chr(Pn_15)
+            P_n_15 = guess ^ 0x01 ^ C[-2][15]
+            return chr(P_n_15)
+    
+    print("Couldn't find C' that decrypts to valid padding.\nUsing original byte instead.")
+    P_n_15 = 0x01 ^ C[-2][15] ^ C[-2][15]
+    return chr(P_n_15)
 
 
 if __name__ == "__main__":
