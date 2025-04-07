@@ -6,6 +6,7 @@ from utils import (
     join_blocks,
     bytes_to_hex,
 )
+import copy
 
 CONNECTION_ADDR_A = ("cc5327.hackerlab.cl", 5312)
 CONNECTION_ADDR_B = ("cc5327.hackerlab.cl", 5313)
@@ -22,7 +23,7 @@ def decipher_last_character(ciphertext: str):
     # with a correct padding (of 1 one byte) must exist
     for guess in range(256):
         # we also need a copy of C to modify it
-        C_prime = [bytearray(block) for block in C]
+        C_prime = copy.deepcopy(C)
 
         # we modify the last byte of C'[n-1]
         C_prime[-2][15] = guess
