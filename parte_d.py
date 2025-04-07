@@ -18,9 +18,6 @@ def decipher_last_character(ciphertext: str):
     # first, split ciphertext into blocks
     C = split_blocks(hex_to_bytes(ciphertext), 16)
 
-    # for our algorithm, we need the second to last block
-    Cn_1 = C[-2]
-
     # a value of the last byte of C'[n-1] that decrypts to a message
     # with a correct padding (of 1 one byte) must exist
     for guess in range(256):
@@ -36,15 +33,9 @@ def decipher_last_character(ciphertext: str):
         print('[Server B] "{}"'.format(ans))
 
         # we only care when the modified message is actually different
-        # from the original ciphertext, and that only happens when the
-        # server responds with something along the lines of
-        #'invalid character'
-        if "json: invalid character" in ans:
-            # we found the required last byte of C'[n-1]!
-            print(f"Byte found: {guess:#04x}")
-
-            # to decipher the last character, we compute the equation
-            Pn_15 = 0x01 ^ guess ^ Cn_1[15]
+        # from the original ciphertext
+        if "invalid padding" not in ans:
+            Pn_15 = guess ^ 0x01 ^ C[-2][15]
             return chr(Pn_15)
 
 
