@@ -49,12 +49,6 @@ def decipher_last_character(ciphertext: str) -> str:
             P_n_15 = guess ^ 0x01 ^ C[-2][15]
             return chr(P_n_15)
 
-    print(
-        "Couldn't find C' that decrypts to valid padding.\nUsing original byte instead."
-    )
-    P_n_15 = 0x01 ^ C[-2][15] ^ C[-2][15]
-    return chr(P_n_15)
-
 
 if __name__ == "__main__":
     sock_input, sock_output = create_socket(CONNECTION_ADDR_A)

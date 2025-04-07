@@ -44,12 +44,6 @@ def decipher_byte(C, byte_index, P_i, sock_input, sock_output) -> None:
             print(f"Deciphered byte {byte_index}: {repr(chr(P_i[byte_index]))}")
             return
 
-    print(
-        "Couldn't find C' that decrypts to valid padding.\nUsing original byte instead."
-    )
-    P_i[byte_index] = pad ^ C[-2][byte_index] ^ C[-2][byte_index]
-    print(f"Deciphered byte {byte_index}: {repr(chr(P_i[byte_index]))}")
-
 
 def decipher_last_block(C, P_i, sock_input, sock_output) -> None:
     """Deciphers the last block of the ciphered text in blocks C and stores the
